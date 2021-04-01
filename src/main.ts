@@ -15,9 +15,10 @@ async function run(): Promise<void> {
     const allowedLabels: string[] = core
       .getInput("allowed", { required: true })
       .split("\n")
+      .map((x) => x.trim())
       .filter((x) => x !== "");
 
-    core.debug(`allowed labels: ${allowedLabels}`);
+    core.info(`allowed labels: ${allowedLabels}`);
 
     const pr = github.context.payload.pull_request;
     if (!pr) {
@@ -28,7 +29,7 @@ async function run(): Promise<void> {
     const prLabels: Label[] | undefined = pr?.labels;
     const labels = prLabels?.map((l) => l.name);
 
-    core.debug(`pull request labels: ${labels}`);
+    core.info(`pull request labels: ${labels}`);
 
     if (!labels?.length) {
       core.setFailed("pull request has no labels");
@@ -45,11 +46,13 @@ async function run(): Promise<void> {
       }
     }
 
-    core.debug(`matched ${matched}`);
-    core.debug(`not matched ${notMatched}`);
+    core.info(`matched ${matched}`);
+    core.info(`not matched ${notMatched}`);
 
     if (matched.length !== 1) {
-      core.setFailed(`expecting only one matched label, but found ${matched}`);
+      core.setFailed(
+        `expecting only one matched label, but found ${matched.length === 0 ? "none" : matched}`,
+      );
     } else {
       core.info(`found exactly one allowed label ${matched[0]}`);
     }

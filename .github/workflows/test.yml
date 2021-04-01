@@ -22,6 +22,8 @@ jobs:
       - uses: ./
         with:
           allowed: |
-            first
-            second
-            third
+            dependencies
+            new feature
+            bug
+            enhancement
+            internal
