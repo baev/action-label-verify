@@ -46,8 +46,8 @@ async function run(): Promise<void> {
       }
     }
 
-    core.info(`matched ${matched}`);
-    core.info(`not matched ${notMatched}`);
+    core.info(`matched ${matched.length === 0 ? "none" : matched}`);
+    core.info(`not matched ${notMatched.length === 0 ? "none" : notMatched}`);
 
     if (matched.length !== 1) {
       core.setFailed(
