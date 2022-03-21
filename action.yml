@@ -2,6 +2,8 @@ name: 'Verify Pull Request Labels'
 description: 'Require labels for Pull Requests'
 author: 'qameta'
 inputs:
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
   allowed:
     required: true
     description: 'list of labels to verify'

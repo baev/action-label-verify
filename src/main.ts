@@ -1,6 +1,8 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
+type ClientType = ReturnType<typeof github.getOctokit>;
+
 interface Label {
   color: string;
   default: boolean;
@@ -12,6 +14,7 @@ interface Label {
 
 async function run(): Promise<void> {
   try {
+    const token = core.getInput("repo-token", { required: true });
     const allowedLabels: string[] = core
       .getInput("allowed", { required: true })
       .split("\n")
@@ -20,11 +23,19 @@ async function run(): Promise<void> {
 
     core.info(`allowed labels: ${allowedLabels}`);
 
-    const pr = github.context.payload.pull_request;
-    if (!pr) {
-      core.info("not a pull request");
+    const prNumber = getPrNumber();
+    if (!prNumber) {
+      console.log("Could not get pull request number from context, exiting");
       return;
     }
+
+    const client: ClientType = github.getOctokit(token);
+
+    const { data: pr } = await client.rest.pulls.get({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      pull_number: prNumber,
+    });
 
     const prLabels: Label[] | undefined = pr?.labels;
     const labels = prLabels?.map((l) => l.name);
@@ -59,6 +70,15 @@ async function run(): Promise<void> {
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+
+function getPrNumber(): number | undefined {
+  const pullRequest = github.context.payload.pull_request;
+  if (!pullRequest) {
+    return undefined;
+  }
+
+  return pullRequest.number;
 }
 
 run();
